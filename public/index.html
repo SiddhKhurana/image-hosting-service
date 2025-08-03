@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Image Upload & Compression</title>
+</head>
+<body>
+  <h2>Upload an Image to Compress</h2>
+  <form id="uploadForm" enctype="multipart/form-data">
+    <input type="file" name="image" accept=".jpg,.jpeg,.png" required />
+    <button type="submit">Upload & Compress</button>
+  </form>
+  <div id="result"></div>
+
+  <script>
+    const form = document.getElementById('uploadForm');
+    const result = document.getElementById('result');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const fileInput = form.elements['image'];
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+        const response = await fetch('/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await response.json();
+        if (data.url) {
+          result.innerHTML = `<p>Compressed image: <a href="${data.url}" target="_blank">${data.url}</a></p>
+          <img src="${data.url}" style="max-width:300px; margin-top:10px;" />`;
+        } else {
+          result.innerHTML = `<p style="color:red;">${data.error || 'Upload failed.'}</p>`;
+        }
+      } catch (err) {
+        result.innerHTML = `<p style="color:red;">${err.message}</p>`;
+      }
+    });
+  </script>
+</body>
+</html>
